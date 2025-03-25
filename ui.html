@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Saga Orchestrator UI</title>
+</head>
+<body>
+    <h2>Create New User (Saga Demo)</h2>
+    <label>Username:</label><br>
+    <input type="text" id="username"><br><br>
+
+    <label>Address:</label><br>
+    <input type="text" id="address"><br><br>
+
+    <label>Payment Method:</label><br>
+    <input type="text" id="payment"><br><br>
+
+    <button id="submitBtn">Submit</button>
+
+    <h3>Response:</h3>
+    <pre id="response"></pre>
+
+    <button onclick="loadLogs()">View Logs</button>
+    <h3>Latest Saga Logs:</h3>
+    <table border="1">
+        <thead>
+            <tr><th>Time</th><th>Saga ID</th><th>Service</th><th>Status</th><th>Message</th></tr>
+        </thead>
+        <tbody id="logTable"></tbody>
+    </table>
+
+    <script>
+        function startSaga() {
+            const username = document.getElementById('username').value;
+            const address = document.getElementById('address').value;
+            const payment = document.getElementById('payment').value;
+
+            fetch('/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, address, payment })
+            })
+            .then(async res => {
+                const text = await res.text();
+                try {
+                    const json = JSON.parse(text);
+                    document.getElementById('response').textContent = JSON.stringify(json, null, 2);
+                } catch {
+                    document.getElementById('response').textContent = "❌ Server Error:\n" + text;
+                }
+            })
+            .catch(err => {
+                document.getElementById('response').textContent = "❌ JS Error: " + err;
+            });
+        }
+
+        function loadLogs() {
+            fetch('/logs')
+            .then(res => res.json())
+            .then(logs => {
+                const table = document.getElementById('logTable');
+                table.innerHTML = '';
+                logs.forEach(log => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${log.created_at}</td><td>${log.saga_id}</td><td>${log.service}</td><td>${log.status}</td><td>${log.message}</td>`;
+                    table.appendChild(row);
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('submitBtn').addEventListener('click', startSaga);
+        });
+    </script>
+</body>
+</html>
