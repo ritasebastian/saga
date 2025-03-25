@@ -282,12 +282,14 @@ python orchestrator.py
 
 ### Example CURL:
 ```bash
-curl -X POST http://localhost:5000/start -H "Content-Type: application/json" \
--d '{"username": "john_doe", "address": "123 Main St", "payment": "Visa"}'
+Username john_doe
+Address  123 Main St
+Payment  Visa
 
 ```
 
 Create New User (Saga Demo)
+
 Username:
 
 
