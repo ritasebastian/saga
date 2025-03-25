@@ -278,12 +278,13 @@ python orchestrator.py
 
 ---
 
-## ✅ STEP 11: Trigger Saga via CURL or Postman
+## ✅ STEP 11: Trigger Saga via URL http://localhost:5000
 
 ### Example CURL:
 ```bash
 curl -X POST http://localhost:5000/start -H "Content-Type: application/json" \
 -d '{"username": "john_doe", "address": "123 Main St", "payment": "Visa"}'
+
 ```
 
 Repeat this multiple times to observe the **alternate failure pattern** for A and B.
