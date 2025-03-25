@@ -1,4 +1,3 @@
-Perfect! Here's your complete **step-by-step guide** to build and run a **Saga Pattern Orchestration demo** on your **MacBook Air using Python + Flask + MySQL**. This will include:
 
 ✅ Orchestrator  
 ✅ Services A, B, and C  
@@ -61,7 +60,7 @@ CREATE TABLE TABLE_C (
 CREATE TABLE SAGA_LOG (
   id INT AUTO_INCREMENT PRIMARY KEY,
   saga_id VARCHAR(100),
-  service VARCHAR(10),
+  service VARCHAR(100),
   status VARCHAR(20),
   message TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -90,7 +89,7 @@ saga_project/
 ├── service_b.py          # Port 5002
 ├── service_c.py          # Port 5003
 ├── common.py             # Shared DB connection logic
-└── test_runner.py        # CLI script to simulate multiple invocations
+└── ui.html               # UI
 ```
 
 ---
@@ -300,15 +299,3 @@ SELECT * FROM SAGA_LOG ORDER BY created_at DESC;
 
 ---
 
-## ✅ STEP 13: Want a CLI Runner?
-
-You can create `test_runner.py` to simulate many requests automatically.
-
----
-
-Would you like:
-- `test_runner.py` to simulate 10 concurrent users?
-- A simple **Tkinter UI** or **web UI**?
-- Retry/rollback logic implemented for compensation?
-
-Let me know how you want to enhance it further.
