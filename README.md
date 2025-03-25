@@ -287,7 +287,66 @@ curl -X POST http://localhost:5000/start -H "Content-Type: application/json" \
 
 ```
 
-Repeat this multiple times to observe the **alternate failure pattern** for A and B.
+Create New User (Saga Demo)
+Username:
+
+
+Address:
+
+
+Payment Method:
+
+
+Submit
+Response:
+View Logs
+Latest Saga Logs:
+Time	Saga ID	Service	Status	Message
+
+
+---
+
+### ✅ **Base Test Case (Happy Path)**
+
+| ID | Test Case | Steps | Expected Outcome |
+|----|-----------|-------|------------------|
+| TC-01 | Normal operation | Start all services and orchestrator, then trigger saga | All services A → B → C execute successfully. All three tables are updated. Log entry shows saga success. |
+
+---
+
+### 🛑 **Service Down / Network Failures**
+
+| ID | Test Case | Steps | Expected Outcome |
+|----|-----------|-------|------------------|
+| TC-02 | Stop Service A | Stop Flask service on port 5001 before saga is triggered | Orchestrator fails to call Service A. Saga logs failure. No data committed. Retry logic may kick in. |
+| TC-03 | Stop Service B | Stop Flask service on port 5002 before saga is triggered | Orchestrator calls A successfully. Fails at B. Compensation action (rollback A) should trigger. |
+| TC-04 | Stop Service C | Stop Flask service on port 5003 before saga is triggered | A and B succeed. Fails at C. Compensation for B and A should happen. Saga logs failure with rollback. |
+
+---
+
+### 🔁 **Failure After Transaction (Simulated in Code)**
+
+| ID | Test Case | Steps | Expected Outcome |
+|----|-----------|-------|------------------|
+| TC-05 | Service A fails before DB transaction | Run saga multiple times to trigger "every other" failure in A | A fails as expected. Saga aborts early. Log shows failure at A. No compensation needed. |
+| TC-06 | Service B fails after DB commit | Run saga multiple times to hit B's "every other" post-commit failure | A and B partially commit. Orchestrator should detect failure and initiate rollback (manual or via compensator). |
+
+---
+
+### ⌛ **Timeouts & Retries**
+
+| ID | Test Case | Steps | Expected Outcome |
+|----|-----------|-------|------------------|
+| TC-07 | Simulate Service B timeout | Add delay in Service B > orchestrator timeout value | Orchestrator retries B, then triggers rollback if B continues failing. |
+| TC-08 | Retry success scenario | Service A fails first time, succeeds on retry | Orchestrator retries A, then continues saga. Saga ends successfully. |
+
+---
+
+### 📉 **Database Failure**
+
+| ID | Test Case | Steps | Expected Outcome |
+|----|-----------|-------|------------------|
+| TC-09 | DB goes down mid-saga | Stop MySQL service before or during saga | Services fail to write to DB. Saga fails. Log should reflect database error. |
 
 ---
 
