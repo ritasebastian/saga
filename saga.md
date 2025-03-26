@@ -169,3 +169,53 @@ Orchestrator → Service C ❌ (Transaction C fails)
 This structure ensures data consistency by systematically undoing completed steps when failures occur, avoiding partial updates in distributed systems.
 
 
+In your Flask-based Saga Orchestrator system, HTTP **status codes** indicate the result of each request to services A, B, and C. Here’s a clear breakdown of what status codes you might encounter and what they mean:
+
+---
+
+### ✅ **Most Common HTTP Status Codes Used in Your System**
+
+| **Code** | **Meaning** | **Where/When It Happens** |
+|----------|-------------|---------------------------|
+| **200 OK** | ✅ Success | - Service A, B, C respond successfully<br>- Orchestrator `/start` route completes all steps |
+| **400 Bad Request** | ❌ Client sent invalid data | - Not currently implemented, but could happen if the `request.json` is missing required fields |
+| **500 Internal Server Error** | ❌ Failure occurred during service logic | - Service A fails before DB insert (simulated)<br>- Service B fails after DB commit (simulated)<br>- Orchestrator catches exception and rolls back |
+| **504 Gateway Timeout** | ❌ Request timeout | - Can occur if a `retry_request()` call exceeds 5s timeout (not seen unless a service hangs) |
+
+---
+
+### 📍Where Requests Are Made in Your Code
+
+#### In `orchestrator.py`
+```python
+res_a = retry_request('http://localhost:5001/invoke', {...})  # calls Service A
+res_b = retry_request('http://localhost:5002/invoke', {...})  # calls Service B
+res_c = retry_request('http://localhost:5003/invoke', {...})  # calls Service C
+```
+
+- If the service responds successfully → `res.status_code == 200`
+- If service fails (simulated or real) → status code will be `500`
+
+---
+
+### 🔁 Retry Logic
+Your `retry_request()` function handles **temporary failures**:
+- **Retries 2 times** if the service fails (500 or connection error)
+- **Raises exception** if all retries fail → this triggers rollback in orchestrator
+
+---
+
+### 🧪 You Can Add a Test Route to See This
+If you want to test what status codes you're getting back:
+
+```python
+@app.route('/test_status', methods=['POST'])
+def test_status():
+    res = requests.post('http://localhost:5001/invoke', json={"username": "test"})
+    return jsonify({
+        'status_code': res.status_code,
+        'response': res.json()
+    })
+```
+
+---
