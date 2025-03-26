@@ -109,7 +109,7 @@ Orchestration-based sagas use a central coordinator to manage distributed transa
    - Executes Transaction B ✅  
 3. **Orchestrator** → **Service C**  
    - Executes Transaction C ✅  
-**Final State**: All transactions complete successfully[1][5].
+**Final State**: All transactions complete successfully
 
 ---
 
@@ -133,7 +133,7 @@ Orchestrator → Service B ❌ (Transaction B fails)
 **Compensation Flow**:  
 1. **Orchestrator** → **Service A**  
    - Triggers Compensating Transaction A (undoes Transaction A) ✅  
-**Result**: System returns to pre-transaction state[2][5].
+**Result**: System returns to pre-transaction state
 
 ---
 
@@ -148,24 +148,24 @@ Orchestrator → Service C ❌ (Transaction C fails)
    - Triggers Compensating Transaction B (undoes Transaction B) ✅  
 2. **Orchestrator** → **Service A**  
    - Triggers Compensating Transaction A (undoes Transaction A) ✅  
-**Result**: System returns to pre-transaction state[1][5].
+**Result**: System returns to pre-transaction state
 
 ---
 
 ### **Key Components in Diagrams**
 | Component                | Role                                                                 |
 |--------------------------|----------------------------------------------------------------------|
-| **Orchestrator**         | Central coordinator; initiates transactions and compensations[3][5].|
-| **Compensating Transaction** | Reverses effects of a completed transaction (e.g., refunds, rollbacks)[1][6]. |
-| **Service (A/B/C)**      | Executes local transactions or compensations as directed[7].        |
+| **Orchestrator**         | Central coordinator; initiates transactions and compensations|
+| **Compensating Transaction** | Reverses effects of a completed transaction (e.g., refunds, rollbacks) |
+| **Service (A/B/C)**      | Executes local transactions or compensations as directed.        |
 
 ---
 
 ## **Failure Recovery Logic**
-- **Non-compensable transactions** (e.g., irreversible actions like payments) are placed last to minimize rollback complexity[6].  
-- The orchestrator uses **idempotent operations** to handle retries safely[5].  
-- AWS Step Functions is a common tool for implementing fault-tolerant orchestration[5].
+- **Non-compensable transactions** (e.g., irreversible actions like payments) are placed last to minimize rollback complexity.  
+- The orchestrator uses **idempotent operations** to handle retries safely.  
+- AWS Step Functions is a common tool for implementing fault-tolerant orchestration.
 
-This structure ensures data consistency by systematically undoing completed steps when failures occur, avoiding partial updates in distributed systems[1][2].
+This structure ensures data consistency by systematically undoing completed steps when failures occur, avoiding partial updates in distributed systems.
 
 
