@@ -98,3 +98,74 @@ The Saga Pattern is a microservice design pattern used to handle **long-lived tr
 
 ---
 
+Orchestration-based sagas use a central coordinator to manage distributed transactions across services. When a failure occurs, the orchestrator triggers compensating transactions to undo completed steps. Below are simplified textual diagrams for failure scenarios involving services A, B, and C, based on the Saga pattern's orchestration approach.
+
+---
+
+## **Successful Transaction Flow**
+1. **Orchestrator** → **Service A**  
+   - Executes Transaction A ✅  
+2. **Orchestrator** → **Service B**  
+   - Executes Transaction B ✅  
+3. **Orchestrator** → **Service C**  
+   - Executes Transaction C ✅  
+**Final State**: All transactions complete successfully[1][5].
+
+---
+
+## **Failure Scenarios and Compensation**
+
+### **1. Failure at Service A**
+```
+Orchestrator → Service A ❌ (Transaction A fails)  
+```
+**Action**:  
+- No compensation needed (no prior successful transactions).  
+- Saga aborts immediately[1][6].
+
+---
+
+### **2. Failure at Service B**
+```
+Orchestrator → Service A ✅  
+Orchestrator → Service B ❌ (Transaction B fails)  
+```
+**Compensation Flow**:  
+1. **Orchestrator** → **Service A**  
+   - Triggers Compensating Transaction A (undoes Transaction A) ✅  
+**Result**: System returns to pre-transaction state[2][5].
+
+---
+
+### **3. Failure at Service C**
+```
+Orchestrator → Service A ✅  
+Orchestrator → Service B ✅  
+Orchestrator → Service C ❌ (Transaction C fails)  
+```
+**Compensation Flow**:  
+1. **Orchestrator** → **Service B**  
+   - Triggers Compensating Transaction B (undoes Transaction B) ✅  
+2. **Orchestrator** → **Service A**  
+   - Triggers Compensating Transaction A (undoes Transaction A) ✅  
+**Result**: System returns to pre-transaction state[1][5].
+
+---
+
+### **Key Components in Diagrams**
+| Component                | Role                                                                 |
+|--------------------------|----------------------------------------------------------------------|
+| **Orchestrator**         | Central coordinator; initiates transactions and compensations[3][5].|
+| **Compensating Transaction** | Reverses effects of a completed transaction (e.g., refunds, rollbacks)[1][6]. |
+| **Service (A/B/C)**      | Executes local transactions or compensations as directed[7].        |
+
+---
+
+## **Failure Recovery Logic**
+- **Non-compensable transactions** (e.g., irreversible actions like payments) are placed last to minimize rollback complexity[6].  
+- The orchestrator uses **idempotent operations** to handle retries safely[5].  
+- AWS Step Functions is a common tool for implementing fault-tolerant orchestration[5].
+
+This structure ensures data consistency by systematically undoing completed steps when failures occur, avoiding partial updates in distributed systems[1][2].
+
+
